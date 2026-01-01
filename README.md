@@ -55,13 +55,3 @@ Contributions are welcome! If you have suggestions for improvements or new featu
 Distributed under the MIT License. See LICENSE for more information.
 Developed by Ashfak
 
-### How to add this to your GitHub:
-1.  On your computer, open your project folder.
-2.  Create a new file named `README.md`.
-3.  Paste the code above into that file and save it.
-4.  Run these commands in your terminal:
-    ```bash
-    git add README.md
-    git commit -m "Add professional README"
-    git push origin main
-    ```
