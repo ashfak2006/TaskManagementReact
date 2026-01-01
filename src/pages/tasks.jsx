@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useActionData, useNavigate } from 'react-router-dom';
 import apiService from '../lib/apiService'
 import authservice from '../lib/authservice';
 import { useState,useEffect } from 'react'
@@ -29,6 +29,7 @@ function Tasks() {
     const [urlpage,seturlpage]=useState('');
     const [previous,setprevious]=useState('');
     const [taskadd,settaskadd]=useState(false);
+    const [notiCount,setNotyCount] = useState(0);
     const navigate=useNavigate()
     const [showWarning, setShowWarning] = useState(false);
     const [filter,filterSet] = useState(
@@ -43,11 +44,25 @@ function Tasks() {
     const handleclose =()=>{
       settaskadd(false)
     };
-   
+     
+    const setNoty = async ()=>{
+      const count = await apiService.apiRequest('/tasks/notifications/count/',{
+        method :'GET'
+      })
+      console.log('count')
+      let nottiCount = Number(count.unread_count);
+
+      setNotyCount(nottiCount);
+      // console.log(count.unread_count)
+      console.log(notiCount)
+    };
+
+
+
     const setCompleted = async (id,Completed)=>{
       try{
         let value = Completed;
-        console.log(value)
+ 
         const response = await apiService.apiRequest(`/tasks/${id}/`,{
           method : 'PATCH',
           headers:{
@@ -56,7 +71,7 @@ function Tasks() {
           },
           body:JSON.stringify({IS_COMPLETED:value})
         })
-        console.log(response)
+        
         fetchdata();
       }catch(error){
         console.log(error.message)
@@ -82,7 +97,7 @@ function Tasks() {
               if (urlpage === previous){
                 url = previous;
               }
-              console.log(url)
+             
               const tasksData = await apiService.apiRequest(url,{
                   method:'GET'
               });
@@ -90,7 +105,7 @@ function Tasks() {
               setnext(tasksData.next);
               setprevious(tasksData.previous);
               seterror('');
-              console.log(tasksData)
+         
           }catch(error){
               seterror(error.message);
           }finally{
@@ -100,10 +115,11 @@ function Tasks() {
     }
     useEffect(()=>{
       fetchdata();
+     
     },[filter,urlpage]);
 
-    
-
+  
+   setNoty();
   const priorityColors = {
   low: 'bg-green-100 text-green-800 border-green-200',
   medium: 'bg-yellow-100 text-yellow-800 border-yellow-200',
@@ -117,6 +133,8 @@ function Tasks() {
   high: <Flag className="w-3 h-3" />
   };
   
+  // console.log(`${tasks}tasks`)
+  // console.log(tasks)
 
   return (
     <div>
@@ -128,9 +146,17 @@ function Tasks() {
             <h1 className="text-3xl  font-bold text-gray-900 mb-2">Task Management</h1>
             <p className="text-gray-600">Organize and track your tasks efficiently</p>
           </div>
+
           <div className='flex items-center gap-4'>
             <button className='' onClick={logout}><LogOut /></button>
+          {notiCount > 0 && 
+          <div>
+           <span className='w-3 h-3 rounded-full mr-2 bg-red-500 flex items-center justify-center text-white text-xs'>{notiCount}</span>
+            <Bell onClick={()=>{navigate('user/message')}}/></div>
+          }
+          {notiCount === 0 &&
             <Bell onClick={()=>{navigate('user/message')}}/>
+          }
           </div>
         </div>
 
@@ -231,7 +257,7 @@ function Tasks() {
                      </div>
                     
         </div>
-        {showWarning && <Warningmessage showWarning={setShowWarning} fetchdata={fetchdata} taskId={task.id}/> }
+        {showWarning && <Warningmessage setShowWarning={setShowWarning} fetchdata={fetchdata} taskId={task.id}/> }
          <div className="flex items-end mt-4">
           <button onClick={()=>{setShowWarning(true)}}>
             <Trash2 color="#9e0505" strokeWidth={1} />
@@ -271,4 +297,4 @@ function Tasks() {
   )
 }
 
-export default Tasks
+export default Tasks;

@@ -24,7 +24,7 @@ class ApiService{
 
         try{
             let response = await fetch(endpoint,config);
-             console.log(response)
+            console.log(response)
             if(response.status == 403 && accesToken){
                 console.log('try to refresh')
                 try{
